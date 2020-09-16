@@ -6,7 +6,7 @@
 import os
 import pandas as pd
 import datetime
-#import seaborn as sns
+import seaborn as sns
 import matplotlib.pyplot as plt
 #%% # Functions
 def megadf(path='./hw01'):
@@ -78,3 +78,54 @@ print(df.groupby('sensor').var())
 print('std')
 print(df.groupby('sensor').std())
 #%%
+"""sns.set_style("white")
+plt.figure(figsize=(12,10))
+plt.xlabel('Ration short/total', fontsize=18)
+plt.title ('CO3 In vitro transcription, Na+', fontsize=22)
+
+ax = sns.distplot(df.Temperature, hist = True, bins=5, kde=False)
+
+#plt.savefig("hist.svg", format="svg")
+plt.show()"""
+# %%
+# plot
+f, axes = plt.subplots(1, 5, figsize=(20,6), sharex=True)
+sns.distplot( df['Temperature'].where(df.sensor=='A'), color="skyblue", ax=axes[0])
+sns.distplot( df['Temperature'].where(df.sensor=='B'), color="olive", ax=axes[1])
+sns.distplot( df['Temperature'].where(df.sensor=='C'), color="gold", ax=axes[2])
+sns.distplot( df['Temperature'].where(df.sensor=='D'), color="teal", ax=axes[3])
+sns.distplot( df['Temperature'].where(df.sensor=='E'), color="magenta", ax=axes[4])
+
+plt.show()
+# %%
+plt.figure()
+grid = sns.FacetGrid(df, col="sensor", hue = 'sensor', palette="Set1",margin_titles=True)
+grid.map(sns.distplot , "Temperature", bins= 10 );
+plt.show();
+# %%
+plt.figure()
+grid = sns.FacetGrid(df, col="sensor", hue = 'sensor', palette="Set1",margin_titles=True)
+grid.map(sns.distplot , "Temperature", bins= 5, color='blue' );
+grid.map(sns.distplot , "Temperature", bins= 50 );
+plt.show();
+#%%
+# 1 plot with all freq as diff legends
+plt.figure( figsize=(20,10) )
+sns.distplot( df['Temperature'].where(df.sensor=='A'), color="skyblue" , hist=False, kde=True , label='A')
+sns.distplot( df['Temperature'].where(df.sensor=='B'), color="olive", hist=False, kde=True, label='B')
+sns.distplot( df['Temperature'].where(df.sensor=='C'), color="gold", hist=False, kde=True, label='C')
+sns.distplot( df['Temperature'].where(df.sensor=='D'), color="teal", hist=False, kde=True, label='D')
+sns.distplot( df['Temperature'].where(df.sensor=='E'), color="magenta", hist=False, kde=True, label='E')
+plt.legend()
+# %%
+# Generate 3 plots that include the 5 sensors boxplot for: 
+# Wind Speed, Wind Direction and Temperature.\
+#wind speed
+""" # this peice of shit doesnt work for now but will once you figure out 
+# how to be able to update the facetgrid with more rows of your own
+# each row needs to have a facet of wind speed, temperature etc
+
+f, axes = plt.subplots(1, 5, figsize=(20,6), sharex=True)
+sns.distplot( df['Temperature'].where(df.sensor=='A'), color="skyblue", ax=axes[0])
+sns.distplot( df['Temperature'].where(df.sensor=='B'), color="olive", ax=axes[1])
+sns.distplot( df['Temperature'].where(df.sensor=='C'), color="gold", ax=axes[2])"""
