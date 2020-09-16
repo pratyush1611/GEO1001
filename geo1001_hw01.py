@@ -71,7 +71,7 @@ collist=  ['FORMATTED DATE-TIME', 'Direction ‚ True', 'Wind Speed',
 
 
 # %%
-print('mean'
+print('mean')
 print(df.groupby('sensor').mean())
 print('var')
 print(df.groupby('sensor').var())
