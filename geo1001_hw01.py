@@ -9,12 +9,13 @@ import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
 #%% # Functions
-def megadf(path='./hw01'):
-    """takes the path of existing sensor datasets and
-        returns a dataframe with all datasets combined
 
-    Args:
-        path ([str in linux format pss: use /]): [the path to the datasets in excel]
+def megadf(path='./hw01'):
+    """#takes the path of existing sensor datasets and
+        #returns a dataframe with all datasets combined
+
+    #Args:
+        #path ([str in linux format pss: use /]): [the path to the datasets in excel]
     """
     ls = []
     for file in os.listdir(path):
@@ -34,18 +35,19 @@ def megadf(path='./hw01'):
     df = pd.concat(templist, ignore_index=True)
     return df
 #############
+#%%
 
+#df = megadf()
 
-df = megadf()
 #df.to_json('joinedDF.json') #save as json for future usage
 
 # %%
 # to continue with the assignment
-"""
+
 df=pd.read_json('./joinedDF.json')
 df['FORMATTED DATE-TIME']=df['FORMATTED DATE-TIME'].apply(lambda d: datetime.datetime.fromtimestamp(int(d)/1000).strftime('%Y-%m-%d %H:%M:%S'))
 #df['FORMATTED DATE-TIME'] = pd.to_datetime(df['FORMATTED DATE-TIME'] , unit='ns')#.astype('datetime64[ns]')
-"""
+
 # %% ##part 1 from A1
 """
 ##Aim:  Compute mean statistics
@@ -77,37 +79,24 @@ print('var')
 print(df.groupby('sensor').var())
 print('std')
 print(df.groupby('sensor').std())
-#%%
-"""sns.set_style("white")
-plt.figure(figsize=(12,10))
-plt.xlabel('Ration short/total', fontsize=18)
-plt.title ('CO3 In vitro transcription, Na+', fontsize=22)
 
-ax = sns.distplot(df.Temperature, hist = True, bins=5, kde=False)
-
-#plt.savefig("hist.svg", format="svg")
-plt.show()"""
 # %%
-# plot
-f, axes = plt.subplots(1, 5, figsize=(20,6), sharex=True)
-sns.distplot( df['Temperature'].where(df.sensor=='A'), color="skyblue", ax=axes[0])
-sns.distplot( df['Temperature'].where(df.sensor=='B'), color="olive", ax=axes[1])
-sns.distplot( df['Temperature'].where(df.sensor=='C'), color="gold", ax=axes[2])
-sns.distplot( df['Temperature'].where(df.sensor=='D'), color="teal", ax=axes[3])
-sns.distplot( df['Temperature'].where(df.sensor=='E'), color="magenta", ax=axes[4])
+plt.figure()
+grid = sns.FacetGrid(df, col="sensor", hue = 'sensor', palette="coolwarm",margin_titles=True)
+grid.map(sns.distplot , "Temperature" , bins= 15 );
+plt.show()
+
+
+# %%
+
+grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
+grid = grid.map(sns.distplot , "Temperature", bins= 5 , kde=False );
+
+grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True , hue='sensor')
+grid = grid.map(sns.distplot , "Temperature", bins= 50 , kde=False );
 
 plt.show()
-# %%
-plt.figure()
-grid = sns.FacetGrid(df, col="sensor", hue = 'sensor', palette="Set1",margin_titles=True)
-grid.map(sns.distplot , "Temperature", bins= 10 );
-plt.show();
-# %%
-plt.figure()
-grid = sns.FacetGrid(df, col="sensor", hue = 'sensor', palette="Set1",margin_titles=True)
-grid.map(sns.distplot , "Temperature", bins= 5, color='blue' );
-grid.map(sns.distplot , "Temperature", bins= 50 );
-plt.show();
+
 #%%
 # 1 plot with all freq as diff legends
 plt.figure( figsize=(20,10) )
