@@ -36,15 +36,13 @@ def megadf(path='./hw01'):
     return df
 #############
 #%%
-
 #df = megadf()
-
 #df.to_json('joinedDF.json') #save as json for future usage
-
 # %%
-# to continue with the assignment
+# to load dataset from json
 
-df=pd.read_json('./joinedDF.json')
+#df=pd.read_json('./joinedDF.json') # if json is present locally
+df= pd.read_json('https://raw.githubusercontent.com/pratyush1611/geo1001/main/joinedDF.json')
 df['FORMATTED DATE-TIME']=df['FORMATTED DATE-TIME'].apply(lambda d: datetime.datetime.fromtimestamp(int(d)/1000).strftime('%Y-%m-%d %H:%M:%S'))
 #df['FORMATTED DATE-TIME'] = pd.to_datetime(df['FORMATTED DATE-TIME'] , unit='ns')#.astype('datetime64[ns]')
 
@@ -112,11 +110,6 @@ plt.legend()
 # %%
 # Generate 3 plots that include the 5 sensors boxplot for: 
 # Wind Speed, Wind Direction and Temperature.\
-#wind speed
-""" # this peice of shit doesnt work for now but will once you figure out 
-# how to be able to update the facetgrid with more rows of your own
-# each row needs to have a facet of wind speed, temperature etc
-"""
 # 'Direction ‚ True', 'Wind Speed'
 
 f, axes = plt.subplots(3, 5, figsize=(30,30), sharex=False)
@@ -154,5 +147,15 @@ For the Wind Speed values,
 plot the pdf and the kernel density estimation. 
 Comment the differences.
 """
+#PDF
+grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
+grid = grid.map(sns.distplot , "Temperature", bins= 5 , kde=False );
+
+#PMF
+grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
+grid = grid.map(sns.distplot , "Temperature" , kde=True );
+
+#CDF
+
 
 # %%
