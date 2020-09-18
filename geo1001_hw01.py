@@ -149,12 +149,11 @@ Comment the differences.
 """
 #PDF
 grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
-grid = grid.map(sns.distplot , "Temperature", bins= 5 , kde=False );
+grid = grid.map(sns.distplot , "Temperature", bins= 10 , kde=False );
 
 #PMF
 grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
 grid = grid.map(sns.distplot , "Temperature" , kde=True );
-
 #CDF
 
 
