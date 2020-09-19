@@ -257,10 +257,19 @@ print(df_tp_spear_corr)
 print(df_wbgt_spear_corr)
 print(df_cs_spear_corr)
 
-#plotting
+#plotting : figure out plotting in a pairwise plot before correlation or after
 sns.pairplot(df_tp_pear_corr)
-#or
+sns.pairplot(df_wbgt_pear_corr)
+sns.pairplot(df_cs_pear_corr)
+
+sns.pairplot(df_tp_spear_corr)
+sns.pairplot(df_wbgt_spear_corr)
+sns.pairplot(df_cs_spear_corr)
+
+"""
+#or using scatter_matrix in pandas
 from pandas.plotting import scatter_matrix
-scatter_matrix(df_tp_pear_corr, alpha = 0.3, figsize = (14,8), diagonal = 'kde');
+scatter_matrix(df_tp_pear_corr, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
+"""
 # %% PArt A4 to be done
 
