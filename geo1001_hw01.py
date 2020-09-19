@@ -243,8 +243,8 @@ df_wbgt_pear_corr=df_wbgt_corr.corr(method='pearson')
 df_cs_pear_corr=df_cs_corr.corr(method=  'pearson')
 
 df_tp_spear_corr=df_tp_corr.corr(method=  'spearman')
-df_wbgt_spear_corr=df_wbgt_spear_corr.corr(method='spearman')
-df_cs_spear_corr=df_cs_spear_corr.corr(method=  'spearman')
+df_wbgt_spear_corr=df_wbgt_corr.corr(method='spearman')
+df_cs_spear_corr=df_cs_corr.corr(method=  'spearman')
 
 
 print('Pearson Correlation')
