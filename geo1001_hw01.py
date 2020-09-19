@@ -238,15 +238,25 @@ df_cs_corr = (df_cs[['Crosswind_Speed']][df_cs.sensor == 'A']
             .rename(columns={'Crosswind_SpeedA':'Crosswind_SpeedA', 'Crosswind_SpeedB':'Crosswind_SpeedB', 'Crosswind_Speed':'Crosswind_SpeedC', 'Crosswind_SpeedD':'Crosswind_SpeedD', 'Crosswind_SpeedE':'Crosswind_SpeedE'})
            )
 
+df_tp_pear_corr=df_tp_corr.corr(method=  'pearson')
+df_wbgt_pear_corr=df_wbgt_corr.corr(method='pearson')
+df_cs_pear_corr=df_cs_corr.corr(method=  'pearson')
+
+df_tp_spear_corr=df_tp_corr.corr(method=  'spearman')
+df_wbgt_spear_corr.corr(method='spearman')
+df_cs_spear_corr.corr(method=  'spearman')
+
+
 print('Pearson Correlation')
-print(df_tp_corr.corr(method=  'pearson'))
-print(df_wbgt_corr.corr(method='pearson'))
-print(df_cs_corr.corr(method=  'pearson'))
+print(df_tp_pear_corr)
+print(df_wbgt_pear_corr)
+print(df_cs_pear_corr)
 
 print('Spearman Correlation')
-print(df_tp_corr.corr(method=  'spearman'))
-print(df_wbgt_corr.corr(method='spearman'))
-print(df_cs_corr.corr(method=  'spearman'))
+print(df_tp_spear_corr.corr(method=  'spearman'))
+print(df_wbgt_spear_corr.corr(method='spearman'))
+print(df_cs_spear_corr.corr(method=  'spearman'))
 
 
-# %%
+# %% PArt A4 to be done
+
