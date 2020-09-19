@@ -98,6 +98,7 @@ plt.show()
 
 #%%
 # 1 plot with all freq as diff legends
+"""
 plt.figure( figsize=(20,10) )
 sns.distplot( df['Temperature'].where(df.sensor=='A'), color="skyblue" , hist=False, kde=True , label='A')
 sns.distplot( df['Temperature'].where(df.sensor=='B'), color="olive", hist=False, kde=True, label='B')
@@ -105,6 +106,10 @@ sns.distplot( df['Temperature'].where(df.sensor=='C'), color="gold", hist=False,
 sns.distplot( df['Temperature'].where(df.sensor=='D'), color="teal", hist=False, kde=True, label='D')
 sns.distplot( df['Temperature'].where(df.sensor=='E'), color="magenta", hist=False, kde=True, label='E')
 plt.legend()
+"""
+
+for i in df.sensor.unique():
+    sns.distplot(df['Temperature'].where(df.sensor==str(i)) ,hist=False, kde=True, label=i)
 
 
 # %%
@@ -112,15 +117,15 @@ plt.legend()
 # Wind Speed, Wind Direction and Temperature.\
 # 'Direction ‚ True', 'Wind Speed'
 
-f, axes = plt.subplots(3, 5, figsize=(30,30), sharex=False)
+f, axes = plt.subplots(3, 5, figsize=(30,20), sharex=False)
 
-sns.distplot( df['Direction ‚ True'].where(df.sensor=='A'), color="#50ABBF", ax=axes[0][0] , label='A')
+sns.distplot( df['Direction ‚ True'].where(df.sensor=='A'), color="skyblue", ax=axes[0][0] , label='A')
 sns.distplot( df['Direction ‚ True'].where(df.sensor=='B'), color="#F2DC99", ax=axes[0][1], label='B')
 sns.distplot( df['Direction ‚ True'].where(df.sensor=='C'), color="#BFB8AE", ax=axes[0][2], label='C')
-sns.distplot( df['Direction ‚ True'].where(df.sensor=='D'), color="#F2F2F2", ax=axes[0][3], label='D')
+sns.distplot( df['Direction ‚ True'].where(df.sensor=='D'), color="#E2F2AA", ax=axes[0][3], label='D')
 sns.distplot( df['Direction ‚ True'].where(df.sensor=='E'), color="#0D0D0D", ax=axes[0][4], label='E')
 
-sns.distplot( df['Wind Speed'].where(df.sensor=='A'), color="#EAB804", ax=axes[1][0] , label='A')
+sns.distplot( df['Wind Speed'].where(df.sensor=='A'), color="skyblue", ax=axes[1][0] , label='A')
 sns.distplot( df['Wind Speed'].where(df.sensor=='B'), color="#00CCAC", ax=axes[1][1], label='B')
 sns.distplot( df['Wind Speed'].where(df.sensor=='C'), color="#52EBFF", ax=axes[1][2], label='C')
 sns.distplot( df['Wind Speed'].where(df.sensor=='D'), color="#FF9C12", ax=axes[1][3], label='D')
@@ -143,18 +148,40 @@ independent plots (or subplots).
 Describe the behaviour of the distributions, 
 are they all similar? what about their tails?
 
-For the Wind Speed values, 
-plot the pdf and the kernel density estimation. 
+For the Wind Speed values, plot the pdf and the kernel density estimation. 
 Comment the differences.
 """
 #PDF
 grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
 grid = grid.map(sns.distplot , "Temperature", bins= 10 , kde=False );
+#grid.fig.subplots_adjust(top=0.85)
+grid.fig.suptitle('PDF' , fontsize=16)
 
 #PMF
 grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
 grid = grid.map(sns.distplot , "Temperature" , kde=True );
+#grid.fig.subplots_adjust(top=-0.85)
+grid.fig.suptitle('PMF', fontsize=16)
 #CDF
+grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
+kwargs = {'cumulative': True}
+hist_kw = {'cumulative': True,
+            'density': True}
+grid = grid.map(sns.distplot, 'Temperature',hist_kws=hist_kw , kde_kws=kwargs)
+#grid.fig.subplots_adjust(top=0.85)
+grid.fig.suptitle('CDF', fontsize=16);
+#%%
 
+#WIND SPEED
+grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
+grid = grid.map(sns.distplot , "Wind Speed", bins= 10 , kde=False );
+grid.fig.suptitle('Windspeed PDF' , fontsize=16)
+
+grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
+grid = grid.map(sns.distplot , "Wind Speed", bins= 10 , kde=True );
+grid.fig.suptitle('KDE' , fontsize=16)
+#%%
+for i in df.sensor.unique():
+    sns.distplot(df['Wind Speed'].where(df.sensor==str(i)) ,hist=False, kde=True, label=i)
 
 # %%
