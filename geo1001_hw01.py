@@ -257,6 +257,10 @@ print(df_tp_spear_corr)
 print(df_wbgt_spear_corr)
 print(df_cs_spear_corr)
 
-
+#plotting
+sns.pairplot(df_tp_corr)
+#or
+from pandas.plotting import scatter_matrix
+scatter_matrix(df_tp_corr, alpha = 0.3, figsize = (14,8), diagonal = 'kde');
 # %% PArt A4 to be done
 
