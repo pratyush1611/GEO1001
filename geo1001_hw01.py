@@ -253,9 +253,9 @@ print(df_wbgt_pear_corr)
 print(df_cs_pear_corr)
 
 print('Spearman Correlation')
-print(df_tp_spear_corr.corr(method=  'spearman'))
-print(df_wbgt_spear_corr.corr(method='spearman'))
-print(df_cs_spear_corr.corr(method=  'spearman'))
+print(df_tp_spear_corr)
+print(df_wbgt_spear_corr)
+print(df_cs_spear_corr)
 
 
 # %% PArt A4 to be done
