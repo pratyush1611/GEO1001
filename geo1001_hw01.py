@@ -185,3 +185,68 @@ for i in df.sensor.unique():
     sns.distplot(df['Wind Speed'].where(df.sensor==str(i)) ,hist=False, kde=True, label=i)
 
 # %%
+#A3
+"""
+Compute the correlations between all the sensors for the variables: 
+Temperature, Wet Bulb Globe Temperature (WBGT), Crosswind Speed. 
+Perform correlation between sensors with the same variable, 
+not between two different variables; for example, 
+correlate Temperature time series between sensor A and B. 
+Use Pearson’s and Spearmann’s rank coefficients. 
+Make a scatter plot with both coefficients with the 3 variables.
+"""
+#workflow 
+#set dataframe for joining
+df_tp = df[['FORMATTED DATE-TIME', 'Temperature','sensor']] 
+df_tp = df_tp.rename(columns={'FORMATTED DATE-TIME':'Time', 'Temperature':'Temp', 'sensor':'sensor'})
+df_tp.set_index('Time', inplace=True)
+
+df_wbgt = df[['FORMATTED DATE-TIME', 'Psychro Wet Bulb Temperature','sensor']] 
+df_wbgt = df_wbgt.rename(columns={'FORMATTED DATE-TIME':'Time', 'Psychro Wet Bulb Temperature':'WBGT', 'sensor':'sensor'})
+df_wbgt.set_index('Time', inplace=True)
+
+
+df_cs = df[['FORMATTED DATE-TIME', 'Crosswind Speed','sensor']] 
+df_cs = df_cs.rename(columns={'FORMATTED DATE-TIME':'Time', 'Crosswind Speed':'Crosswind_Speed', 'sensor':'sensor'})
+df_cs.set_index('Time', inplace=True)
+
+#join dataframes
+df_tp_corr = (df_tp[['Temp']][df_tp.sensor == 'A']
+            .join(df_tp[['Temp']][df_tp.sensor == 'B'], on='Time', how='left', lsuffix='A', rsuffix='B', sort=True)
+            .join(df_tp[['Temp']][df_tp.sensor == 'C'], on='Time', how='left', rsuffix='C')
+            .join(df_tp[['Temp']][df_tp.sensor == 'D'], on='Time', how='left', rsuffix='D')
+            .join(df_tp[['Temp']][df_tp.sensor == 'E'], on='Time', how='left', rsuffix='E')
+            .dropna()
+            .rename(columns={'TempA':'TempA', 'TempB':'TempB', 'Temp':'TempC', 'TempD':'TempD', 'TempE':'TempE'})
+           )
+
+df_wbgt_corr = (df_wbgt[['WBGT']][df_wbgt.sensor == 'A']
+            .join(df_wbgt[['WBGT']][df_wbgt.sensor == 'B'], on='Time', how='left', lsuffix='A', rsuffix='B', sort=True)
+            .join(df_wbgt[['WBGT']][df_wbgt.sensor == 'C'], on='Time', how='left', rsuffix='C')
+            .join(df_wbgt[['WBGT']][df_wbgt.sensor == 'D'], on='Time', how='left', rsuffix='D')
+            .join(df_wbgt[['WBGT']][df_wbgt.sensor == 'E'], on='Time', how='left', rsuffix='E')
+            .dropna()
+            .rename(columns={'WBGTA':'WBGTA', 'WBGTB':'WBGTB', 'WBGT':'WBGTC', 'WBGTD':'WBGTD', 'WBGTE':'WBGTE'})
+           )
+
+df_cs_corr = (df_cs[['Crosswind_Speed']][df_cs.sensor == 'A']
+            .join(df_cs[['Crosswind_Speed']][df_cs.sensor == 'B'], on='Time', how='left', lsuffix='A', rsuffix='B', sort=True)
+            .join(df_cs[['Crosswind_Speed']][df_cs.sensor == 'C'], on='Time', how='left', rsuffix='C')
+            .join(df_cs[['Crosswind_Speed']][df_cs.sensor == 'D'], on='Time', how='left', rsuffix='D')
+            .join(df_cs[['Crosswind_Speed']][df_cs.sensor == 'E'], on='Time', how='left', rsuffix='E')
+            .dropna()
+            .rename(columns={'Crosswind_SpeedA':'Crosswind_SpeedA', 'Crosswind_SpeedB':'Crosswind_SpeedB', 'Crosswind_Speed':'Crosswind_SpeedC', 'Crosswind_SpeedD':'Crosswind_SpeedD', 'Crosswind_SpeedE':'Crosswind_SpeedE'})
+           )
+
+print('Pearson Correlation')
+print(df_tp_corr.corr(method=  'pearson'))
+print(df_wbgt_corr.corr(method='pearson'))
+print(df_cs_corr.corr(method=  'pearson'))
+
+print('Spearman Correlation')
+print(df_tp_corr.corr(method=  'spearman'))
+print(df_wbgt_corr.corr(method='spearman'))
+print(df_cs_corr.corr(method=  'spearman'))
+
+
+# %%
