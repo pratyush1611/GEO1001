@@ -258,6 +258,8 @@ print(df_wbgt_spear_corr)
 print(df_cs_spear_corr)
 
 #plotting : figure out plotting in a pairwise plot before correlation or after
+"""df_tp_pear_corr.values.tolist()
+
 sns.pairplot(df_tp_pear_corr)
 sns.pairplot(df_wbgt_pear_corr)
 sns.pairplot(df_cs_pear_corr)
@@ -265,11 +267,49 @@ sns.pairplot(df_cs_pear_corr)
 sns.pairplot(df_tp_spear_corr)
 sns.pairplot(df_wbgt_spear_corr)
 sns.pairplot(df_cs_spear_corr)
+"""
+
+# fix the plots for ab ac ad ae bc bd be cd ce de 
+p = df_tp_pear_corr.values.tolist()[0][1:]
+p.extend(df_tp_pear_corr.values.tolist()[1][2:])
+p.extend(df_tp_pear_corr.values.tolist()[2][3:])
+p.extend(df_tp_pear_corr.values.tolist()[3][4:])
+q = df_wbgt_pear_corr.values.tolist()[0][1:]
+q.extend(df_wbgt_pear_corr.values.tolist()[1][2:])
+q.extend(df_wbgt_pear_corr.values.tolist()[2][3:])
+q.extend(df_wbgt_pear_corr.values.tolist()[3][4:])
+r = df_cs_pear_corr.values.tolist()[0][1:]
+r.extend(df_cs_pear_corr.values.tolist()[1][2:])
+r.extend(df_cs_pear_corr.values.tolist()[2][3:])
+r.extend(df_cs_pear_corr.values.tolist()[3][4:])
+
+df_fix_pear = pd.DataFrame(data=zip(p,q,r) , index = ['ab', 'ac', 'ad', 'ae' ,'bc' ,'bd' ,'be', 'cd', 'ce', 'de'] , columns=['Temperature', 'WBGT','CrossWind Speed'])
+sns.scatterplot(data = df_fix_pear)
+
+plt.figure()
+p = df_tp_spear_corr.values.tolist()[0][1:]
+p.extend(df_tp_spear_corr.values.tolist()[1][2:])
+p.extend(df_tp_spear_corr.values.tolist()[2][3:])
+p.extend(df_tp_spear_corr.values.tolist()[3][4:])
+q = df_wbgt_spear_corr.values.tolist()[0][1:]
+q.extend(df_wbgt_spear_corr.values.tolist()[1][2:])
+q.extend(df_wbgt_spear_corr.values.tolist()[2][3:])
+q.extend(df_wbgt_spear_corr.values.tolist()[3][4:])
+r = df_cs_spear_corr.values.tolist()[0][1:]
+r.extend(df_cs_spear_corr.values.tolist()[1][2:])
+r.extend(df_cs_spear_corr.values.tolist()[2][3:])
+r.extend(df_cs_spear_corr.values.tolist()[3][4:])
+df_fix_pear = pd.DataFrame(data=zip(p,q,r) , index = ['ab', 'ac', 'ad', 'ae' ,'bc' ,'bd' ,'be', 'cd', 'ce', 'de'] , columns=['Temperature', 'WBGT','CrossWind Speed'])
+sns.scatterplot(data = df_fix_pear)
 
 """
 #or using scatter_matrix in pandas
 from pandas.plotting import scatter_matrix
 scatter_matrix(df_tp_pear_corr, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
 """
+
+
 # %% PArt A4 to be done
 
+
+# %%
