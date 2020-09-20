@@ -119,8 +119,12 @@ for i in df.sensor.unique():
 # Wind Speed, Wind Direction and Temperature.\
 # 'Direction ‚ True', 'Wind Speed'
 
-f, axes = plt.subplots(3, 5, figsize=(30,20), sharex=False)
+f, axes = plt.subplots(3,  figsize=(10,20), sharex=False)
 
+sns.boxplot( x='sensor', y='Direction ‚ True' , data = df , palette='Set3', ax=axes[0] ,orient='v', width = 0.4 )
+sns.boxplot( x='sensor', y='Wind Speed' , data = df , palette='Set2',ax=axes[1],orient='v', width = 0.4)
+sns.boxplot( x='sensor', y='Temperature' , data = df , palette='Set2',ax=axes[2] ,orient='v', width = 0.4)
+"""
 sns.distplot( df['Direction ‚ True'].where(df.sensor=='A'), color="skyblue", ax=axes[0][0] , label='A')
 sns.distplot( df['Direction ‚ True'].where(df.sensor=='B'), color="#F2DC99", ax=axes[0][1], label='B')
 sns.distplot( df['Direction ‚ True'].where(df.sensor=='C'), color="#BFB8AE", ax=axes[0][2], label='C')
@@ -138,7 +142,7 @@ sns.distplot( df['Temperature'].where(df.sensor=='B'), color="olive", ax=axes[2]
 sns.distplot( df['Temperature'].where(df.sensor=='C'), color="gold", ax=axes[2][2], label='C')
 sns.distplot( df['Temperature'].where(df.sensor=='D'), color="blue", ax=axes[2][3], label='D')
 sns.distplot( df['Temperature'].where(df.sensor=='E'), color="orange", ax=axes[2][4], label='E')
-
+"""
 plt.show()
 
 
@@ -346,4 +350,6 @@ conf_df=pd.DataFrame(columns= list('ABCDE') , index=['Temperature','Wind Speed']
 for i in list('ABCDE'):
     conf_df[str(i)] = confidence95(a4[['Temp','WS']][a4.sensor==str(i)])
 
-conf_df
+conf_df.to_csv('confidence_intervals_A4')
+#%% A4 hypothesis tests
+
