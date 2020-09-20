@@ -8,6 +8,8 @@ import pandas as pd
 import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
+from scipy.stats import sem, t
+from scipy import mean
 #%% # Functions
 
 def megadf(path='./hw01'):
@@ -324,11 +326,24 @@ grid = sns.FacetGrid(a4, col="sensor",  palette="Set2" ,margin_titles=True, hue=
 grid = grid.map(sns.distplot, 'WS', hist_kws=hist_kw , kde_kws=kwargs)
 
 # %% adding the confidence to table
-from scipy.stats import sem, t
-from scipy import mean
-confidence = 0.95
-data = a4.Temp
-n = len(data)
-m = mean(data)
-std_err = sem(data)
-h = std_err * t.ppf((1 + confidence) / 2, n - 1)
+
+def confidence95(data):
+    """gives back the confidence interval value for df
+
+    Args:
+        data ([pandas dataframe]): [df containing the temperature values for a particular sensor]
+    """
+    confidence = 0.95
+    n = len(data)
+    m = mean(data)
+    std_err = sem(data)
+    h = std_err * t.ppf((1 + confidence) / 2, n - 1)
+    return(h)
+
+#data = a4[['Temp']][a4.sensor=='A']
+conf_df=pd.DataFrame(columns= list('ABCDE') , index=['Temperature','Wind Speed'])
+
+for i in list('ABCDE'):
+    conf_df[str(i)] = confidence95(a4[['Temp','WS']][a4.sensor==str(i)])
+
+conf_df
