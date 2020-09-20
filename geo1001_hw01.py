@@ -310,6 +310,25 @@ scatter_matrix(df_tp_pear_corr, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
 
 
 # %% PArt A4 to be done
+a4 = df[['FORMATTED DATE-TIME', 'Temperature','Wind Speed','sensor']] 
+a4 = a4.rename(columns={'FORMATTED DATE-TIME':'Time', 'Temperature':'Temp', 'Wind Speed':'WS','sensor':'sensor'})
+a4.set_index('Time', inplace=True)
+a4.dropna(inplace=True)
 
+kwargs = {'cumulative': True}
+hist_kw = {'cumulative': True, 'density': True}
+grid = sns.FacetGrid(a4, col="sensor",  palette="Set2" ,margin_titles=True, hue='sensor')
+grid = grid.map(sns.distplot, 'Temp', hist_kws=hist_kw , kde_kws=kwargs)
 
-# %%
+grid = sns.FacetGrid(a4, col="sensor",  palette="Set2" ,margin_titles=True, hue='sensor')
+grid = grid.map(sns.distplot, 'WS', hist_kws=hist_kw , kde_kws=kwargs)
+
+# %% adding the confidence to table
+from scipy.stats import sem, t
+from scipy import mean
+confidence = 0.95
+data = a4.Temp
+n = len(data)
+m = mean(data)
+std_err = sem(data)
+h = std_err * t.ppf((1 + confidence) / 2, n - 1)
