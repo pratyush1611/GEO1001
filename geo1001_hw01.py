@@ -8,7 +8,7 @@ import pandas as pd
 import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy.stats import sem, t
+from scipy.stats import sem, t , ttest_ind
 from scipy import mean
 #%% # Functions
 
@@ -36,17 +36,16 @@ def megadf(path='./hw01'):
     df = pd.DataFrame()
     df = pd.concat(templist, ignore_index=True)
     return df
-#############
-#%%
+#####
+#run first time to create a conglomerate of the csv files into a single json file
 #df = megadf()
 #df.to_json('joinedDF.json') #save as json for future usage
 # %%
-# to load dataset from json
+# to load dataset from json on github
 
 #df=pd.read_json('./joinedDF.json') # if json is present locally
 df= pd.read_json('https://raw.githubusercontent.com/pratyush1611/geo1001/main/joinedDF.json')
 df['FORMATTED DATE-TIME']=df['FORMATTED DATE-TIME'].apply(lambda d: datetime.datetime.fromtimestamp(int(d)/1000).strftime('%Y-%m-%d %H:%M:%S'))
-#df['FORMATTED DATE-TIME'] = pd.to_datetime(df['FORMATTED DATE-TIME'] , unit='ns')#.astype('datetime64[ns]')
 
 # %% ##part 1 from A1
 """
@@ -122,31 +121,11 @@ for i in df.sensor.unique():
 f, axes = plt.subplots(3,  figsize=(10,20), sharex=False)
 
 sns.boxplot( x='sensor', y='Direction ‚ True' , data = df , palette='Set3', ax=axes[0] ,orient='v', width = 0.4 )
-sns.boxplot( x='sensor', y='Wind Speed' , data = df , palette='Set2',ax=axes[1],orient='v', width = 0.4)
-sns.boxplot( x='sensor', y='Temperature' , data = df , palette='Set2',ax=axes[2] ,orient='v', width = 0.4)
-"""
-sns.distplot( df['Direction ‚ True'].where(df.sensor=='A'), color="skyblue", ax=axes[0][0] , label='A')
-sns.distplot( df['Direction ‚ True'].where(df.sensor=='B'), color="#F2DC99", ax=axes[0][1], label='B')
-sns.distplot( df['Direction ‚ True'].where(df.sensor=='C'), color="#BFB8AE", ax=axes[0][2], label='C')
-sns.distplot( df['Direction ‚ True'].where(df.sensor=='D'), color="#E2F2AA", ax=axes[0][3], label='D')
-sns.distplot( df['Direction ‚ True'].where(df.sensor=='E'), color="#0D0D0D", ax=axes[0][4], label='E')
-
-sns.distplot( df['Wind Speed'].where(df.sensor=='A'), color="skyblue", ax=axes[1][0] , label='A')
-sns.distplot( df['Wind Speed'].where(df.sensor=='B'), color="#00CCAC", ax=axes[1][1], label='B')
-sns.distplot( df['Wind Speed'].where(df.sensor=='C'), color="#52EBFF", ax=axes[1][2], label='C')
-sns.distplot( df['Wind Speed'].where(df.sensor=='D'), color="#FF9C12", ax=axes[1][3], label='D')
-sns.distplot( df['Wind Speed'].where(df.sensor=='E'), color="#C9B468", ax=axes[1][4], label='E')
-
-sns.distplot( df['Temperature'].where(df.sensor=='A'), color="skyblue", ax=axes[2][0] , label='A')
-sns.distplot( df['Temperature'].where(df.sensor=='B'), color="olive", ax=axes[2][1], label='B')
-sns.distplot( df['Temperature'].where(df.sensor=='C'), color="gold", ax=axes[2][2], label='C')
-sns.distplot( df['Temperature'].where(df.sensor=='D'), color="blue", ax=axes[2][3], label='D')
-sns.distplot( df['Temperature'].where(df.sensor=='E'), color="orange", ax=axes[2][4], label='E')
-"""
-plt.show()
+sns.boxplot( x='sensor', y='Wind Speed' , data = df , palette='Set3',ax=axes[1],orient='v', width = 0.4)
+sns.boxplot( x='sensor', y='Temperature' , data = df , palette='Set3',ax=axes[2] ,orient='v', width = 0.4)
 
 
-##///////////////// A! PART DONE ///////////##
+##///////////////// A1 PART DONE ///////////##
 #%% Part A2
 """
 Plot PMF, PDF and CDF for the 5 sensors Temperature values in 
@@ -308,14 +287,8 @@ r.extend(df_cs_spear_corr.values.tolist()[3][4:])
 df_fix_pear = pd.DataFrame(data=zip(p,q,r) , index = ['ab', 'ac', 'ad', 'ae' ,'bc' ,'bd' ,'be', 'cd', 'ce', 'de'] , columns=['Temperature', 'WBGT','CrossWind Speed'])
 sns.scatterplot(data = df_fix_pear)
 
-"""
-#or using scatter_matrix in pandas
-from pandas.plotting import scatter_matrix
-scatter_matrix(df_tp_pear_corr, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
-"""
 
-
-# %% PArt A4 to be done
+# %% PArt A4 
 a4 = df[['FORMATTED DATE-TIME', 'Temperature','Wind Speed','sensor']] 
 a4 = a4.rename(columns={'FORMATTED DATE-TIME':'Time', 'Temperature':'Temp', 'Wind Speed':'WS','sensor':'sensor'})
 a4.set_index('Time', inplace=True)
@@ -344,12 +317,30 @@ def confidence95(data):
     h = std_err * t.ppf((1 + confidence) / 2, n - 1)
     return(h)
 
-#data = a4[['Temp']][a4.sensor=='A']
 conf_df=pd.DataFrame(columns= list('ABCDE') , index=['Temperature','Wind Speed'])
 
 for i in list('ABCDE'):
     conf_df[str(i)] = confidence95(a4[['Temp','WS']][a4.sensor==str(i)])
 
-conf_df.to_csv('confidence_intervals_A4')
+conf_df.to_csv('./exports/confidence_intervals_A4.csv')
+conf_df
 #%% A4 hypothesis tests
+def hypothesis_tp(dat1,dat2):
+    """gives back the p stat 
 
+    Args:
+        data,2 ([pandas dataframe]): [df containing the temp and wind spd val for a particular sensor]
+    """
+    t, p = ttest_ind(dat1,dat2)
+    return(p)
+
+hypo_df=pd.DataFrame( index=['Temp' ,'Wind Speed'])
+
+hypo_df['E-D'] = hypothesis_tp(  a4[['Temp','WS']][a4.sensor=='E']  ,  a4[['Temp','WS']][a4.sensor=='D']  )
+hypo_df['D-C'] = hypothesis_tp(  a4[['Temp','WS']][a4.sensor=='D']  ,  a4[['Temp','WS']][a4.sensor=='C']  )
+hypo_df['C-B'] = hypothesis_tp(  a4[['Temp','WS']][a4.sensor=='C']  ,  a4[['Temp','WS']][a4.sensor=='B']  )
+hypo_df['B-A'] = hypothesis_tp(  a4[['Temp','WS']][a4.sensor=='B']  ,  a4[['Temp','WS']][a4.sensor=='A']  )
+hypo_df = hypo_df.T
+hypo_df.to_csv('./exports/hypo_p_val.csv')
+hypo_df
+# %%
