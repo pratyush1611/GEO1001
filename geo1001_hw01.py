@@ -420,6 +420,4 @@ hypo_df['B-A'] = hypothesis_tp(  a4[['Temp','WS']][a4.sensor=='B']  ,  a4[['Temp
 hypo_df = hypo_df.T
 hypo_df.to_csv('./exports/hypo_p_val.csv')
 hypo_df
-# %% Bonus
-
 
