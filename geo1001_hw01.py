@@ -10,7 +10,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import sem, t , ttest_ind
 from scipy import mean
-#%% # Functions
+#%% # Function to aggregate data into a json file
 
 def megadf(path='./hw01'):
     """#takes the path of existing sensor datasets and
@@ -40,12 +40,34 @@ def megadf(path='./hw01'):
 #run first time to create a conglomerate of the csv files into a single json file
 #df = megadf()
 #df.to_json('joinedDF.json') #save as json for future usage
-# %%
-# to load dataset from json on github
 
-#df=pd.read_json('./joinedDF.json') # if json is present locally
+# to load dataset from json on github
 df= pd.read_json('https://raw.githubusercontent.com/pratyush1611/geo1001/main/joinedDF.json')
 df['FORMATTED DATE-TIME']=df['FORMATTED DATE-TIME'].apply(lambda d: datetime.datetime.fromtimestamp(int(d)/1000).strftime('%Y-%m-%d %H:%M:%S'))
+
+#workflow 
+#set color palette
+colorz = sns.color_palette('Set2', 5 )    
+
+#set dataframe for joining
+df_tp = df[['FORMATTED DATE-TIME', 'Temperature','sensor']] 
+df_tp = df_tp.rename(columns={'FORMATTED DATE-TIME':'Time', 'Temperature':'Temp', 'sensor':'sensor'})
+df_tp.set_index('Time', inplace=True)
+
+df_wbgt = df[['FORMATTED DATE-TIME', 'Psychro Wet Bulb Temperature','sensor']] 
+df_wbgt = df_wbgt.rename(columns={'FORMATTED DATE-TIME':'Time', 'Psychro Wet Bulb Temperature':'WBGT', 'sensor':'sensor'})
+df_wbgt.set_index('Time', inplace=True)
+
+
+df_cs = df[['FORMATTED DATE-TIME', 'Crosswind Speed','sensor']] 
+df_cs = df_cs.rename(columns={'FORMATTED DATE-TIME':'Time', 'Crosswind Speed':'Crosswind_Speed', 'sensor':'sensor'})
+df_cs.set_index('Time', inplace=True)
+
+
+df_ws = df[['FORMATTED DATE-TIME', 'Wind Speed','sensor']] 
+df_ws = df_ws.rename(columns={'FORMATTED DATE-TIME':'Time', 'Wind Speed':'WS', 'sensor':'sensor'})
+df_ws.set_index('Time', inplace=True)
+
 
 # %% ##part 1 from A1
 """
@@ -60,71 +82,59 @@ overlap in different colors with a legend.
 Generate 3 plots that include the 5 sensors boxplot for: 
 Wind Speed, Wind Direction and Temperature.
 """
-# %%
-#from part a1
-# ## mean stats: mean, variance and standard deviation
-collist=  ['FORMATTED DATE-TIME', 'Direction ‚ True', 'Wind Speed',
-       'Crosswind Speed', 'Headwind Speed', 'Temperature', 'Globe Temperature',
-       'Wind Chill', 'Relative Humidity', 'Heat Stress Index', 'Dew Point',
-       'Psychro Wet Bulb Temperature', 'Station Pressure',
-       'Barometric Pressure', 'Altitude', 'Density Altitude',
-       'NA Wet Bulb Temperature', 'WBGT', 'TWL', 'Direction ‚ Mag', 'sensor']
 
+#A1: mean stats: mean, variance and standard deviation
+mn = df.groupby('sensor').mean().T
+vr = df.groupby('sensor').var().T
+st = df.groupby('sensor').std().T
 
-# %% discriptive stats
-print('mean')
-print(df.groupby('sensor').mean())
-print('var')
-print(df.groupby('sensor').var())
-print('std')
-print(df.groupby('sensor').std())
+mn.to_csv('./exports/A1mean.csv')
+vr.to_csv('./exports/A1var.csv')
+st.to_csv('./exports/A1std.csv')
 
 # %% 1 plot with histograms
 
 plt.figure()
-grid = sns.FacetGrid(df, col="sensor", hue = 'sensor', palette="coolwarm",margin_titles=True)
-grid.map(sns.distplot , "Temperature" , bins= 15 );
-plt.show()
+grid = sns.FacetGrid(df, col="sensor", hue = 'sensor', palette="Set2",margin_titles=True)
+grid.map(sns.distplot , "Temperature" , bins= 30 , kde=False , hist=True)
+grid.get_figure().savefig('./exports/plots/a1_1.png')    
 
 
+#plt.savefig('./exports/plots/a1_1.png', dpi=100,  facecolor='w', edgecolor='w')
+
+plt.figure()
+for i in df.sensor.unique():
+    g = sns.distplot(df['Temperature'].where(df.sensor==str(i)) ,hist=True, kde=False,bins=30, label=i)
+plt.legend()
+plt.savefig('./exports/plots/a1_2.png', dpi=100, facecolor='w', edgecolor='w')
 # %% histograms at 5 and 50 bins
 
 grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
-grid = grid.map(sns.distplot , "Temperature", bins= 5 , kde=False );
-
+grid = grid.map(sns.distplot , "Temperature", bins= 5 ,hist=True, kde=False )#.get_figure().savefig('./exports/plots/a1_3.png')
+plt.savefig('./exports/plots/a1_3.png', dpi=100, facecolor='w', edgecolor='w')
 grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True , hue='sensor')
-grid = grid.map(sns.distplot , "Temperature", bins= 50 , kde=False );
-
+grid = grid.map(sns.distplot , "Temperature", bins= 50 ,hist=True, kde=False)#.get_figure().savefig('./exports/plots/a1_4.png')
+plt.savefig('./exports/plots/a1_4.png', dpi=100, facecolor='w', edgecolor='w')
 plt.show()
 
 #%%
 # 1 plot with all freq as diff legends
-"""
-plt.figure( figsize=(20,10) )
-sns.distplot( df['Temperature'].where(df.sensor=='A'), color="skyblue" , hist=False, kde=True , label='A')
-sns.distplot( df['Temperature'].where(df.sensor=='B'), color="olive", hist=False, kde=True, label='B')
-sns.distplot( df['Temperature'].where(df.sensor=='C'), color="gold", hist=False, kde=True, label='C')
-sns.distplot( df['Temperature'].where(df.sensor=='D'), color="teal", hist=False, kde=True, label='D')
-sns.distplot( df['Temperature'].where(df.sensor=='E'), color="magenta", hist=False, kde=True, label='E')
-plt.legend()
-"""
-
+plt.figure(figsize = (15,10))
+sns.set_palette('CMRmap_r', 5 )
 for i in df.sensor.unique():
-    sns.distplot(df['Temperature'].where(df.sensor==str(i)) ,hist=False, kde=True, label=i)
-
+    sns.distplot(df['Temperature'].where(df.sensor==str(i)) ,hist=False, kde=True, bins=30,  label=i)
+plt.savefig('./exports/plots/a1_5.png', dpi=100, facecolor='w', edgecolor='w')
 
 # %%
-# Generate 3 plots that include the 5 sensors boxplot for: 
-# Wind Speed, Wind Direction and Temperature.\
-# 'Direction ‚ True', 'Wind Speed'
+# Generate 3 plots that include the 5 sensors boxplot for: # 'Direction ‚ True', 'Wind Speed'
 
-f, axes = plt.subplots(3,  figsize=(10,20), sharex=False)
+f, axes = plt.subplots(3,  figsize=(10,20), sharex=True)
 
 sns.boxplot( x='sensor', y='Direction ‚ True' , data = df , palette='Set3', ax=axes[0] ,orient='v', width = 0.4 )
 sns.boxplot( x='sensor', y='Wind Speed' , data = df , palette='Set3',ax=axes[1],orient='v', width = 0.4)
 sns.boxplot( x='sensor', y='Temperature' , data = df , palette='Set3',ax=axes[2] ,orient='v', width = 0.4)
 
-
+plt.savefig('./exports/plots/a1_6.png', dpi=100, facecolor='w', edgecolor='w')
 ##///////////////// A1 PART DONE ///////////##
 #%% Part A2
 """
@@ -136,40 +146,95 @@ are they all similar? what about their tails?
 For the Wind Speed values, plot the pdf and the kernel density estimation. 
 Comment the differences.
 """
-#PDF
-grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
-grid = grid.map(sns.distplot , "Temperature", bins= 10 , kde=False );
-#grid.fig.subplots_adjust(top=0.85)
-grid.fig.suptitle('PDF' , fontsize=16)
-
 #PMF
-grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
-grid = grid.map(sns.distplot , "Temperature" , kde=True );
-#grid.fig.subplots_adjust(top=-0.85)
-grid.fig.suptitle('PMF', fontsize=16)
+def pmf(sample):
+    c = sample.value_counts()
+    p = c/len(sample)
+    return p
+
+f , axs = plt.subplots( 3, 5 , figsize=(20,10) )    
+sns.despine(left=False, top=True, right=True)
+j=0
+plt.suptitle('PMF, CDF and PDF for Temperatures of sensors A-E')
+ 
+_ = ['PMF','CDF','PDF']
+#PMF
+for i in list('ABCDE'):
+    axes = axs[0][j]
+    #axs.set_title("PMF", fontsize=16)
+    dafra = pmf(df_tp['Temp'][df_tp.sensor== i])
+    c = dafra.sort_index()
+    axes.bar(c.index,c , alpha=0.4 , label=i , color= colorz[j])
+    j+=1
+#PDF
+j=0
+for i in list('ABCDE'):
+    axes = axs[1][j]
+    #axs.set_title("PMF", fontsize=16)
+    dafra = df_tp['Temp'][df_tp.sensor== i]
+    axes.hist(dafra , alpha=0.4 , label=i , color= colorz[j] , density=True, rwidth=0.85)
+    j+=1
 #CDF
-grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
-kwargs = {'cumulative': True}
-hist_kw = {'cumulative': True,
-            'density': True}
-grid = grid.map(sns.distplot, 'Temperature',hist_kws=hist_kw , kde_kws=kwargs)
-#grid.fig.subplots_adjust(top=0.85)
-grid.fig.suptitle('CDF', fontsize=16);
-#%%
+j=0
+for i in list('ABCDE'):
+    axes = axs[2][j]
+    #axs.set_title("PMF", fontsize=16)
+    dafra = df_tp['Temp'][df_tp.sensor== i]
+    a1 = axes.hist(dafra , bins=30 , alpha=0.4 , label=i , color= colorz[j] , cumulative=True, rwidth=0.85, density=True)
+    axes.plot(a1[1][1:]-(a1[1][1:]-a1[1][:-1])/2,a1[0], color='k')
+    j+=1
 
-#WIND SPEED
+plt.setp(axs[0, 0], ylabel='PMF')
+plt.setp(axs[1, 0], ylabel='PDF')
+plt.setp(axs[2, 0], ylabel='CDF')
+
+snm=list('ABCDE')
+for _ in range(len(snm)):
+    plt.setp(axs[-1, _ ], xlabel='Sensor {}'.format(snm[_]))
+
+plt.savefig('./exports/plots/a2_1.png', dpi=100, facecolor='w', edgecolor='w')
+#%% #WIND SPEED
+"""
+f , axs = plt.subplots( 2, 5 , figsize=(15,7) )    
+sns.despine(left=False, top=True, right=True)
+plt.suptitle('Windspeed PDF and CDF of sensors A-E')
+j=0
+for i in list('ABCDE'):
+    axes = axs[0][j]
+    #axs.set_title("PMF", fontsize=16)
+    dafra = df_ws['WS'][df_tp.sensor== i]
+    axes.hist(dafra , alpha=0.4 , label=i , color= colorz[j] , density=True, rwidth=0.85)
+
+    axes2=axs[1][j]
+    a1 = axes2.hist(dafra , bins=30 , alpha=0.4 , label=i , color= colorz[j] , cumulative=True, rwidth=0.85, density=True)
+    axes2.plot(a1[1][1:]-(a1[1][1:]-a1[1][:-1])/2,a1[0], color='k')
+
+    j+=1
+
+
+plt.setp(axs[0, 0], ylabel='PDF')
+plt.setp(axs[1, 0], ylabel='CDF')
+
+snm=list('ABCDE')
+for _ in range(len(snm)):
+    plt.setp(axs[-1, _ ], xlabel='Sensor {}'.format(snm[_]))
+"""
+#%%
 grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
-grid = grid.map(sns.distplot , "Wind Speed", bins= 10 , kde=False );
-grid.fig.suptitle('Windspeed PDF' , fontsize=16)
+grid = grid.map(sns.distplot , "Wind Speed", bins= 30 , kde=False ,hist_kws={'density':True});
+grid.fig.suptitle('Windspeed PDF' , fontsize=10)
+plt.savefig('./exports/plots/a2_2.png', dpi=100, facecolor='w', edgecolor='w')
 
 grid = sns.FacetGrid(df, col="sensor",  palette="Set2",margin_titles=True, hue='sensor')
-grid = grid.map(sns.distplot , "Wind Speed", bins= 10 , kde=True );
-grid.fig.suptitle('KDE' , fontsize=16)
+grid = grid.map(sns.distplot , "Wind Speed", bins= 30 , kde=True );
+grid.fig.suptitle('KDE' , fontsize=10)
+plt.savefig('./exports/plots/a2_3.png', dpi=100, facecolor='w', edgecolor='w')
 #%%
+sns.despine(top=True,right=True)
 for i in df.sensor.unique():
     sns.distplot(df['Wind Speed'].where(df.sensor==str(i)) ,hist=False, kde=True, label=i)
-
-# %%
+plt.savefig('./exports/plots/a2_4.png', dpi=100, facecolor='w', edgecolor='w')
+ # %%
 #A3
 """
 Compute the correlations between all the sensors for the variables: 
@@ -180,20 +245,7 @@ correlate Temperature time series between sensor A and B.
 Use Pearson’s and Spearmann’s rank coefficients. 
 Make a scatter plot with both coefficients with the 3 variables.
 """
-#workflow 
-#set dataframe for joining
-df_tp = df[['FORMATTED DATE-TIME', 'Temperature','sensor']] 
-df_tp = df_tp.rename(columns={'FORMATTED DATE-TIME':'Time', 'Temperature':'Temp', 'sensor':'sensor'})
-df_tp.set_index('Time', inplace=True)
 
-df_wbgt = df[['FORMATTED DATE-TIME', 'Psychro Wet Bulb Temperature','sensor']] 
-df_wbgt = df_wbgt.rename(columns={'FORMATTED DATE-TIME':'Time', 'Psychro Wet Bulb Temperature':'WBGT', 'sensor':'sensor'})
-df_wbgt.set_index('Time', inplace=True)
-
-
-df_cs = df[['FORMATTED DATE-TIME', 'Crosswind Speed','sensor']] 
-df_cs = df_cs.rename(columns={'FORMATTED DATE-TIME':'Time', 'Crosswind Speed':'Crosswind_Speed', 'sensor':'sensor'})
-df_cs.set_index('Time', inplace=True)
 
 #join dataframes
 df_tp_corr = (df_tp[['Temp']][df_tp.sensor == 'A']
@@ -242,6 +294,14 @@ print(df_tp_spear_corr)
 print(df_wbgt_spear_corr)
 print(df_cs_spear_corr)
 
+df_tp_pear_corr.to_csv('./exports/pear_temp_corr.csv')
+df_wbgt_pear_corr.to_csv('./exports/pear_wbgt_corr.csv')
+df_cs_pear_corr.to_csv('./exports/pear_cs_corr.csv')
+df_tp_spear_corr.to_csv('./exports/apear_temp_corr.csv')
+df_wbgt_spear_corr.to_csv('./exports/apear_wbgt_corr.csv')
+df_cs_spear_corr.to_csv('./exports/apear_cs_corr.csv')
+
+
 #plotting : figure out plotting in a pairwise plot before correlation or after
 """df_tp_pear_corr.values.tolist()
 
@@ -269,9 +329,10 @@ r.extend(df_cs_pear_corr.values.tolist()[2][3:])
 r.extend(df_cs_pear_corr.values.tolist()[3][4:])
 
 df_fix_pear = pd.DataFrame(data=zip(p,q,r) , index = ['ab', 'ac', 'ad', 'ae' ,'bc' ,'bd' ,'be', 'cd', 'ce', 'de'] , columns=['Temperature', 'WBGT','CrossWind Speed'])
-sns.scatterplot(data = df_fix_pear)
+#sns.scatterplot(data = df_fix_pear)
+#plt.savefig('./exports/plots/a3_1.png', dpi=100, facecolor='w', edgecolor='w')
 
-plt.figure()
+
 p = df_tp_spear_corr.values.tolist()[0][1:]
 p.extend(df_tp_spear_corr.values.tolist()[1][2:])
 p.extend(df_tp_spear_corr.values.tolist()[2][3:])
@@ -284,10 +345,25 @@ r = df_cs_spear_corr.values.tolist()[0][1:]
 r.extend(df_cs_spear_corr.values.tolist()[1][2:])
 r.extend(df_cs_spear_corr.values.tolist()[2][3:])
 r.extend(df_cs_spear_corr.values.tolist()[3][4:])
-df_fix_pear = pd.DataFrame(data=zip(p,q,r) , index = ['ab', 'ac', 'ad', 'ae' ,'bc' ,'bd' ,'be', 'cd', 'ce', 'de'] , columns=['Temperature', 'WBGT','CrossWind Speed'])
-sns.scatterplot(data = df_fix_pear)
+df_fix_spear = pd.DataFrame(data=zip(p,q,r) , index = ['ab', 'ac', 'ad', 'ae' ,'bc' ,'bd' ,'be', 'cd', 'ce', 'de'] , columns=['Temperature', 'WBGT','CrossWind Speed'])
+#sns.scatterplot(data = df_fix_pear)
+#plt.savefig('./exports/plots/a3_2.png', dpi=100, facecolor='w', edgecolor='w')
 
 
+f,axs = plt.subplots(2, figsize=(10,15))
+axs[0].scatter(df_fix_pear.index, df_fix_pear.Temperature, marker='o', label='Temperature' )
+axs[0].scatter(df_fix_pear.index, df_fix_pear.WBGT,  marker='s', label='WBGT')
+axs[0].scatter(df_fix_pear.index, df_fix_pear['CrossWind Speed'], marker='x', label='CrossWind Speed')
+axs[0].set(xlabel='Pearson Correlation')
+
+axs[1].scatter(df_fix_spear.index, df_fix_spear.Temperature, marker='o', label='Temperature')
+axs[1].scatter(df_fix_spear.index, df_fix_spear.WBGT,  marker='s', label='WBGT')
+axs[1].scatter(df_fix_spear.index, df_fix_spear['CrossWind Speed'], marker='x', label='CrossWind Speed')
+axs[0].set(xlabel='Spearman Correlation')
+
+plt.legend()
+plt.savefig('./exports/plots/a3.png', dpi=100, facecolor='w', edgecolor='w')
+plt.show()
 # %% PArt A4 
 a4 = df[['FORMATTED DATE-TIME', 'Temperature','Wind Speed','sensor']] 
 a4 = a4.rename(columns={'FORMATTED DATE-TIME':'Time', 'Temperature':'Temp', 'Wind Speed':'WS','sensor':'sensor'})
@@ -298,10 +374,11 @@ kwargs = {'cumulative': True}
 hist_kw = {'cumulative': True, 'density': True}
 grid = sns.FacetGrid(a4, col="sensor",  palette="Set2" ,margin_titles=True, hue='sensor')
 grid = grid.map(sns.distplot, 'Temp', hist_kws=hist_kw , kde_kws=kwargs)
+plt.savefig('./exports/plots/a4_1.png', dpi=100, facecolor='w', edgecolor='w')
 
 grid = sns.FacetGrid(a4, col="sensor",  palette="Set2" ,margin_titles=True, hue='sensor')
 grid = grid.map(sns.distplot, 'WS', hist_kws=hist_kw , kde_kws=kwargs)
-
+plt.savefig('./exports/plots/a4_2.png', dpi=100, facecolor='w', edgecolor='w')
 # %% adding the confidence to table
 
 def confidence95(data):
@@ -343,4 +420,6 @@ hypo_df['B-A'] = hypothesis_tp(  a4[['Temp','WS']][a4.sensor=='B']  ,  a4[['Temp
 hypo_df = hypo_df.T
 hypo_df.to_csv('./exports/hypo_p_val.csv')
 hypo_df
-# %%
+# %% Bonus
+
+
